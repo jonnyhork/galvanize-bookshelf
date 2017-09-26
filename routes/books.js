@@ -9,19 +9,22 @@ const router = express.Router();
 // YOUR CODE HERE
 
 // C
-router.post('/:id', (req, res, next) => {
+router.post('/', (req, res, next) => {
+
+
 
 })
 // R
 /* get all the books */
 router.get('/', (_req, res, next) => {
+
   knex('books')
     .select('id', 'title', 'author', 'genre', 'description', 'cover_url', 'created_at', 'updated_at')
     .orderBy('title', 'ASC')
     .then((books) => {
       res.setHeader('Content-Type', 'application/json')
       res.json(books)
-      // res.send(books)
+
     })
     .catch((err) => next(err))
 })
@@ -29,6 +32,10 @@ router.get('/', (_req, res, next) => {
 router.get('/:id', (req, res, next) => {
 
   let id = req.params.id
+
+  if (typeof id !== 'number') {
+    res.sendStatus(404)
+  }
 
   knex('books')
     .select('id', 'title', 'author', 'genre', 'description', 'cover_url', 'created_at', 'updated_at')
