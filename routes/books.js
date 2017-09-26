@@ -20,13 +20,30 @@ router.get('/', (_req, res, next) => {
     .orderBy('title', 'ASC')
     .then((books) => {
       res.setHeader('Content-Type', 'application/json')
-      res.send(JSON.stringify(books))
+      res.json(books)
+      // res.send(books)
     })
     .catch((err) => next(err))
 })
 /* Get one specific book */
 router.get('/:id', (req, res, next) => {
 
+  let id = req.params.id
+
+  knex('books')
+    .select('id', 'title', 'author', 'genre', 'description', 'cover_url', 'created_at', 'updated_at')
+    .where('id', id)
+    .then((book) => {
+
+      if (!book) {
+        return res.sendStatus(404)
+      }
+
+      res.json(book)
+
+    })
+
+    .catch((err) => next(err))
 })
 // U
 router.patch('/:id', (req, res, next) => {
