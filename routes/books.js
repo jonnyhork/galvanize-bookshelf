@@ -94,8 +94,8 @@ router.patch('/:id', (req, res, next) => {
       cover_url: req.body.coverUrl
     }, '*')
     .then((book) => {
-
-      // if (book !== 1) {
+      // console.log('book=', book);
+      // if (!book) {
       //   return res.sendStatus(400)
       // }
 
@@ -119,5 +119,41 @@ router.delete('/:id', (req, res, next) => {
   if (Number.isNaN(id)) {
     return res.status(404).send('id is not a number')
   }
+
+  let delBook
+
+  knex('books')
+    .where('id', id)
+    .then((bookInfo) => {
+      // console.log('bookInfo: ', bookInfo);
+
+      if (!bookInfo) {
+        return res.sendStatus(404)
+      }
+
+      delBook = bookInfo
+      // console.log('delBook = ', delBook);
+      return knex('books')
+        .del()
+        .where('id', id)
+    })
+    .then(() => {
+      // console.log('delBook then = ', delBook[0]);
+
+      let deletedBook = {
+        title: delBook[0].title,
+        author: delBook[0].author,
+        genre: delBook[0].genre,
+        description: delBook[0].description,
+        coverUrl: delBook[0].cover_url
+      }
+      // console.log('deletedBook: ', deletedBook);
+      res.setHeader('Content-Type', 'application/json')
+      res.send(deletedBook)
+    })
+    .catch((err) => next(err))
+
+
 })
+
 module.exports = router;
