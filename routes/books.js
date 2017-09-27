@@ -114,6 +114,7 @@ router.patch('/:id', (req, res, next) => {
 })
 // D
 router.delete('/:id', (req, res, next) => {
+
   let id = Number(req.params.id)
 
   if (Number.isNaN(id)) {
