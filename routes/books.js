@@ -55,6 +55,9 @@ router.get('/:id', (req, res, next) => {
 
   let id = Number(req.params.id)
 
+  if (Number.isNaN(id)) {
+    return res.status(404).send('id is not a number')
+  }
   // if (typeof id !== 'number') {
   //   return res.sendStatus(404)
   // }
@@ -62,25 +65,59 @@ router.get('/:id', (req, res, next) => {
   knex('books')
     .select('id', 'title', 'author', 'genre', 'description', 'cover_url as coverUrl', 'created_at as createdAt', 'updated_at as updatedAt')
     .where('id', id)
-    // .orderBy('id')
     .then((book) => {
-
+      console.log('BOOK= ', book);
       // if (!book) {
       //   return res.sendStatus(404)
       // }
       res.setHeader('Content-Type', 'application/json')
       res.send(JSON.stringify(book[0]))
 
-    })
-
-    .catch((err) => next(err))
+    }).catch((err) => next(err))
 })
 // U
 router.patch('/:id', (req, res, next) => {
 
+  let id = Number(req.params.id)
+
+  if (Number.isNaN(id)) {
+    return res.status(404).send('id is not a number')
+  }
+
+  knex('books')
+    .where('id', id)
+    .update({
+      title: req.body.title,
+      author: req.body.author,
+      genre: req.body.genre,
+      description: req.body.description,
+      cover_url: req.body.coverUrl
+    }, '*')
+    .then((book) => {
+
+      // if (book !== 1) {
+      //   return res.sendStatus(400)
+      // }
+
+      let updateBook = {
+        id: book[0].id,
+        title: book[0].title,
+        author: book[0].author,
+        genre: book[0].genre,
+        description: book[0].description,
+        coverUrl: book[0].cover_url
+      }
+      res.setHeader('Content-Type', 'application/json')
+      res.send(updateBook)
+    })
+
 })
 // D
 router.delete('/:id', (req, res, next) => {
+  let id = Number(req.params.id)
 
+  if (Number.isNaN(id)) {
+    return res.status(404).send('id is not a number')
+  }
 })
 module.exports = router;
