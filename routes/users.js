@@ -4,6 +4,7 @@ const express = require('express');
 const bcrypt = require('bcrypt')
 const humps = require('humps')
 const knex = require('../knex')
+const boom = require('boom')
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -19,6 +20,10 @@ router.post('/', (req, res, next) => {
     password
   } = req.body
 
+  if (!firstName || !lastName || !email || !password) {
+    next(boom.create(400, 'must contain all user info'))
+    return
+  }
   // console.log('req.body: ', req.body);
   bcrypt.hash(password, 10).then((hash) => {
 
