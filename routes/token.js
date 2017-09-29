@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const knex = require('../knex')
 const bcrypt = require('bcrypt')
 const humps = require('humps')
+const boom = require('boom')
 const SECRET = process.env.JWT_KEY
 
 // eslint-disable-next-line new-cap
@@ -13,11 +14,12 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
 
   // verify the token
-  console.log("got cookies", req.cookies)
+  // console.log("got cookies", req.cookies)
+
   jwt.verify(req.cookies.token, SECRET, (err, payload) => {
     // if there is no token then send res.send(false)
     if (err) {
-      console.log('There was no token')
+      // console.log('There was no token')
       return res.send(false)
     }
     // request assumes a token was created by the previous POST /token request
@@ -39,12 +41,12 @@ router.post('/', (req, res, next) => {
   } = req.body
 
   if (!email) {
-    next(boom.create(400, 'Please enter an email.'))
+    next(boom.create(400, 'Email must not be blank'))
     return
   }
 
   if (!password) {
-    next(boom.create(400, 'Please enter a password.'))
+    next(boom.create(400, 'Password must not be blank'))
   }
 
   // if the req.body was valid then use the email to find the user in the DB
@@ -55,10 +57,10 @@ router.post('/', (req, res, next) => {
     .where('email', email)
     .first()
     .then((user) => {
-      console.log('\n\nTHE USER IS: ', user)
-      console.log('\n\nTHE USER HASH IS\n\n', user.hashed_password);
+      // console.log('\n\nTHE USER IS: ', user)
+      // console.log('\n\nTHE USER HASH IS\n\n', user.hashed_password);
       if (!user) {
-        next(boom.create(400, 'User does not exist!'))
+        next(boom.create(400, 'Bad email or password'))
       }
 
       // check to make sure the password is valid
@@ -80,7 +82,7 @@ router.post('/', (req, res, next) => {
         res.cookie("token", token)
 
       } else {
-        return res.send('The password doesn\'t match')
+        return next(boom.create(400, 'Bad email or password'))
       }
       delete user.hashed_password
       res.send(humps.camelizeKeys(user))
@@ -91,7 +93,10 @@ router.post('/', (req, res, next) => {
 })
 
 router.delete('/', (req, res, next) => {
-  // delete the token
+  // delete the cookie 'token'
+
+  res.clearCookie("token")
+  res.send(true)
 })
 
 
