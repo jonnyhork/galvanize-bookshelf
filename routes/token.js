@@ -79,7 +79,10 @@ router.post('/', (req, res, next) => {
 
         // looking to store a cookie with a token res.cookie("token", token)
 
-        res.cookie("token", token)
+
+        res.cookie("token", token, {
+          httpOnly: true
+        })
 
       } else {
         return next(boom.create(400, 'Bad email or password'))
