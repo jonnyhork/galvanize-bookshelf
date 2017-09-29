@@ -89,7 +89,7 @@ router.post('/', (req, res, next) => {
       }
       delete user.hashed_password
       res.send(humps.camelizeKeys(user))
-    })
+    }).catch((err) => next(err))
 
 
 
