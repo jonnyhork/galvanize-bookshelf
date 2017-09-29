@@ -6,7 +6,7 @@ const knex = require('../knex')
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
-// YOUR CODE HERE
+// refactor using .first()? then you dont have to do book[0]
 
 // C
 router.post('/', (req, res, next) => {

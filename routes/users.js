@@ -9,10 +9,10 @@ const boom = require('boom')
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
-// YOUR CODE HERE
+// refactor using .first()?
 
 router.post('/', (req, res, next) => {
-
+  // this doesnt work with current var names, doesnt match req.body
   let {
     firstName,
     lastName,
@@ -20,10 +20,10 @@ router.post('/', (req, res, next) => {
     password
   } = req.body
 
-  if (!firstName || !lastName || !email || !password) {
-    next(boom.create(400, 'must contain all user info'))
-    return
-  }
+  // if (!firstName || !lastName || !email || !password) {
+  //   next(boom.create(400, 'must contain all user info'))
+  //   return
+  // }
   // console.log('req.body: ', req.body);
   bcrypt.hash(password, 10).then((hash) => {
 
