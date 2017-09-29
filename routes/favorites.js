@@ -4,7 +4,9 @@ const express = require('express')
 const jwt = require('jsonwebtoken')
 const knex = require('../knex')
 const bcrypt = require('bcrypt')
-const humps = require('humps')
+const {
+  camelizeKeys
+} = require('humps')
 const boom = require('boom')
 const SECRET = process.env.JWT_KEY
 // eslint-disable-next-line new-cap
@@ -23,11 +25,11 @@ router.get('/', (req, res, next) => {
       console.log('PAYOAD ID', payload.userId);
 
       knex('favorites')
-        .where('id', payload.userId)
-        // .innerJoin('books', favorites.user_id, books.id)
+        .where('user_id', payload.userId)
+        .innerJoin('books', 'favorites.user_id', 'books.id')
         .then((result) => {
           console.log('RESULT OF PAYLOAD ID:', result);
-          res.send(humps.camelizeKeys(result))
+          res.send(camelizeKeys(result))
         })
     })
   }
@@ -39,6 +41,15 @@ router.get('/check?bookId=:id', (_req, res, next) => {
 
 })
 
+router.post('/', (req, res, next) => {
+  // let {}
+  knex('favorites')
+    .insert() // req.body info
+
+  // res.send() the updated stuff
+
+
+})
 
 
 
