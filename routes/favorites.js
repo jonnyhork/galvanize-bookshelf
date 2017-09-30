@@ -92,16 +92,36 @@ router.post('/', isAuth, (req, res, next) => {
 
 router.delete('/', isAuth, (req, res, next) => {
 
+  let bookId = Number(req.body.bookId)
+
+  if (Number.isNaN(bookId)) {
+    return next(boom.create(400, 'Book ID must be an integer'))
+  }
+
   let favorite
 
   knex('favorites')
-    .where('book_id', req.body.bookId)
+    .where({
+      book_id: bookId,
+      user_id: req.currentUser.userId
+    })
+    .first()
     .then((row) => {
       if (!row) {
         return next(boom.create(404, 'favorite not found'))
       }
 
-    })
+      favorite = camelizeKeys(row)
+
+      return knex('favorites')
+        .del()
+        .where('id', favorite.id)
+
+    }).then(() => {
+      delete favorite.id
+      res.send(favorite)
+    }).catch((err) => next(err))
+
 })
 
 
