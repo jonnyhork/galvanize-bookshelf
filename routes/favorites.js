@@ -13,6 +13,7 @@ const SECRET = process.env.JWT_KEY
 const router = express.Router()
 
 /* If I declare currentUser outside a route scope all routes can use it. If I set req.currentUser inside the is Auth function then I can use req.[variable name] in any route, why is that?*/
+
 // let currentUser
 
 
@@ -23,8 +24,10 @@ const isAuth = (req, res, next) => {
     }
     // console.log('PAYLOAD: ', payload)
     // console.log('PAYOAD ID', payload.userId);
+
     // currentUser = payload
     req.currentUser = payload
+
     // console.log('req.currentUser: ', req.currentUser);
     // console.log('currentUser at isAuth: ', currentUser)
     // console.log('req.claim==', req.claim);
@@ -33,7 +36,7 @@ const isAuth = (req, res, next) => {
 
 }
 
-// TOKEN IS CREATED WITH A USER OF user_id = 1 (userId = 1?)
+
 
 router.get('/', isAuth, (req, res, next) => {
   // console.log(' AT GET req.currentUser: ', req.currentUser);
@@ -50,15 +53,40 @@ router.get('/', isAuth, (req, res, next) => {
 })
 
 
-router.get('/check?bookId=:id', isAuth, (_req, res, next) => {
+router.get('/check', isAuth, (req, res, next) => {
+  console.log('REQ.QUERY IN /CHECK IS : ', req.query)
+
+  let bookId = Number(req.query.bookId)
+
+  if (Number.isNaN(bookId)) {
+    return next(boom.create(400, 'Book ID must be an integer'))
+  }
+
+  knex('favorites')
+    .where({
+      book_id: bookId,
+      user_id: req.currentUser.userId
+    })
+    .first()
+    .then((row) => {
+      // console.log('/CHECK ROW book_id IS: ', row.book_id)
+      if (!row) {
+        return res.send(false) // if not return, then you get err set headers after they are sent.
+      }
+
+
+      res.send(true)
+
+
+    })
 
 })
 
 router.post('/', isAuth, (req, res, next) => {
 
-  // need to insert bookid and a user id to the favoirtes table
-  // user id will come from the req.cookies.token.
-  // book id will come from the req.body.bookId
+  // NEED TO INSERT BOOKID AND A USER ID TO THE FAVOIRTES TABLE
+  // USER ID WILL COME FROM THE REQ.COOKIES.TOKEN.
+  // BOOK ID WILL COME FROM THE REQ.BODY.BOOKID
 
   let {
     bookId
@@ -91,15 +119,15 @@ router.post('/', isAuth, (req, res, next) => {
 
 
 router.delete('/', isAuth, (req, res, next) => {
-
+  // TURN THE REQ.BODY .BOOK ID INTO A NUMBER
   let bookId = Number(req.body.bookId)
-
+  // IF IT'S NOT A KNUMBER THEN SEND AN ERROR
   if (Number.isNaN(bookId)) {
     return next(boom.create(400, 'Book ID must be an integer'))
   }
 
   let favorite
-
+  // CREATE A BUCKET FOR THE ID'D BOOK INFO TO BE STORED BEFORE DELETION
   knex('favorites')
     .where({
       book_id: bookId,
@@ -107,12 +135,15 @@ router.delete('/', isAuth, (req, res, next) => {
     })
     .first()
     .then((row) => {
+      // console.log('deletion row: ', row);
       if (!row) {
         return next(boom.create(404, 'favorite not found'))
       }
-
+      //ONCE YOUVE FOUND THE SELECTED BOOK, ADD TO BUCKET.
       favorite = camelizeKeys(row)
+      // console.log('deletion favorite is: ', favorite);
 
+      // SELECT THE BOOK AGAIN AND DELETE IT, NEED TO RETURN BECAUSE THE CONNECTION WILL STAY OPEN.
       return knex('favorites')
         .del()
         .where('id', favorite.id)
