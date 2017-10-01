@@ -40,16 +40,17 @@ router.post('/', (req, res, next) => {
     password
   } = req.body
 
-  if (!email) {
+  // using .trim() will protect from the user putting blank spaces in the input field, takes away blank spaces.
+  if (!email || !email.trim()) {
     next(boom.create(400, 'Email must not be blank'))
     return
   }
 
-  if (!password) {
+  if (!password || !password.trim()) {
     next(boom.create(400, 'Password must not be blank'))
   }
 
-  // if the req.body was valid then use the email to find the user in the DB
+  // if the req.body was valid then use the email to find the user in the db
 
 
 
@@ -81,9 +82,10 @@ router.post('/', (req, res, next) => {
 
 
         res.cookie("token", token, {
-          httpOnly: true
+          httpOnly: true,
+          // maxAge: 60 * 60 * 24 * 7
         })
-
+        // console.log('RES.COOKIE IS: ', res.cookie);
       } else {
         return next(boom.create(400, 'Bad email or password'))
       }

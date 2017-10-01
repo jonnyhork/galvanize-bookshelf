@@ -12,8 +12,8 @@ const SECRET = process.env.JWT_KEY
 // eslint-disable-next-line new-cap
 const router = express.Router()
 
-/* If I declare currentUser outside a route scope all routes can use it. If I set req.currentUser inside the is Auth function then I can use req.[variable name] in any route, why is that?*/
-
+/* If I declare currentUser outside a route scope all routes can use it. If I set req.currentUser inside the is Auth function then I can use req.[variable name] in any route, why is that?
+  -  because req is passed as a parameter */
 // let currentUser
 
 
@@ -54,7 +54,7 @@ router.get('/', isAuth, (req, res, next) => {
 
 
 router.get('/check', isAuth, (req, res, next) => {
-  console.log('REQ.QUERY IN /CHECK IS : ', req.query)
+  // console.log('REQ.QUERY IN /CHECK IS : ', req.query)
 
   let bookId = Number(req.query.bookId)
 
