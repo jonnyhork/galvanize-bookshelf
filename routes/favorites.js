@@ -92,6 +92,11 @@ router.post('/', isAuth, (req, res, next) => {
     bookId
   } = req.body
 
+
+  if (Number.isNaN(Number(bookId))) {
+    return next(boom.create(400, 'Book ID must be an integer'))
+  }
+
   // console.log("CURRENT USER IS: ", currentUser);
 
   knex('favorites')
@@ -99,6 +104,8 @@ router.post('/', isAuth, (req, res, next) => {
       book_id: bookId,
       user_id: req.currentUser.userId
     }, '*').then((newFavorite) => {
+
+      // NEED ERROR HANDLER FOR BOOK ID NOT FOUND.
 
       // console.log('newFavorite== ', newFavorite);
 
@@ -137,7 +144,7 @@ router.delete('/', isAuth, (req, res, next) => {
     .then((row) => {
       // console.log('deletion row: ', row);
       if (!row) {
-        return next(boom.create(404, 'favorite not found'))
+        return next(boom.create(404, 'Favorite not found'))
       }
       //ONCE YOUVE FOUND THE SELECTED BOOK, ADD TO BUCKET.
       favorite = camelizeKeys(row)
