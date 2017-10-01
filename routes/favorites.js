@@ -71,7 +71,7 @@ router.get('/check', isAuth, (req, res, next) => {
     .then((row) => {
       // console.log('/CHECK ROW book_id IS: ', row.book_id)
       if (!row) {
-        return res.send(false) // if not return, then you get err set headers after they are sent.
+        return res.send(false) // IF NOT RETURN, THEN YOU GET ERR SET HEADERS AFTER THEY ARE SENT.
       }
 
 
@@ -97,13 +97,22 @@ router.post('/', isAuth, (req, res, next) => {
     return next(boom.create(400, 'Book ID must be an integer'))
   }
 
-  // console.log("CURRENT USER IS: ", currentUser);
-
   knex('favorites')
-    .insert({
-      book_id: bookId,
-      user_id: req.currentUser.userId
-    }, '*').then((newFavorite) => {
+    .where('book_id', bookId)
+    .first()
+    .then((row) => {
+      if (!row) {
+        // return res.status(404).send('Book not found')
+        throw boom.create(404, 'Book not found')
+      }
+
+      return knex('favorites')
+        .insert({
+          book_id: bookId,
+          user_id: req.currentUser.userId
+        }, '*')
+    })
+    .then((newFavorite) => {
 
       // NEED ERROR HANDLER FOR BOOK ID NOT FOUND.
 
