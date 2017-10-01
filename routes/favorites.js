@@ -97,14 +97,15 @@ router.post('/', isAuth, (req, res, next) => {
     return next(boom.create(400, 'Book ID must be an integer'))
   }
 
-  knex('favorites')
-    .where('book_id', bookId)
+  knex('books')
+    .where('id', bookId)
     .first()
     .then((row) => {
       if (!row) {
         // return res.status(404).send('Book not found')
         throw boom.create(404, 'Book not found')
       }
+      // console.log('POST ROW: ', row)
 
       return knex('favorites')
         .insert({
