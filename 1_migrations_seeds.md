@@ -1,4 +1,4 @@
-#### [⇐ Previous](README.md) | [Next ⇒](2_express_knex.md)
+ #### [⇐ Previous](README.md) | [Next ⇒](2_express_knex.md)
 
 # Knex Migrations and Seeds
 
